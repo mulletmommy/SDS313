@@ -1,0 +1,124 @@
+---
+title: "Project 1: Project Gutenburg"
+output: html_document
+date: "2023-09-22"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## General Info on Project Gutenburg
+
+```{r, echo = FALSE}
+glutenBooks <- read.csv("glutenBooks.csv")
+names(glutenBooks)
+```
+
+### Variable Names of Dataset
+
+* **Title**: Title of Book
+* **Author**: Author of Book
+* **AuthorBirthYear**: Year that Author was born
+* **AuthorDeathYear**: Year that Author died
+* **PublicationYear**: Year that the book was published
+* **GradeLevel**: The Automated Readibilty Index(ARI) of a book. It calculates a number that indicates how hard or easy it is to read a book. The higher the score, the more difficult it is to read. Each grade is assigned a range of ARI numbers that represent the difficulty.
+* **AvgLettersPerWord**: The average amount of letters per Word
+* **AvgSentenceLength**: The average number of words within each sentence
+* **NumberSentences**: Number of sentences in the book
+* **Download**s: Number of downloads for that specific book
+
+My chosen outcome for this lab will be the **GradeLevel** variable. My three predictors that I will be investigating in this lab are **AuthorDeathYear**, **AvgLettersPerWord**, and **AvgSentenceLength**.
+
+
+![](https://static3.makeuseofimages.com/wordpress/wp-content/uploads/2014/11/d7e5c76cf4d884433a7e9384f1e8bc8c.jpg)
+
+[Photo](https://static3.makeuseofimages.com/wordpress/wp-content/uploads/2014/11/d7e5c76cf4d884433a7e9384f1e8bc8c.jpg)
+
+------------------------------------------------------------------------
+
+
+## Information on variable GradeLevel, aka AUtomated Readibility Index
+
+```{r, echo=FALSE}
+tooBig <- max(glutenBooks$GradeLevel)
+
+glutenBooks <- glutenBooks%>%
+    filter(GradeLevel < max(glutenBooks$GradeLevel))
+
+glutenBooks%>%
+    ggplot(aes(x = GradeLevel))+
+    geom_histogram(bins = 45, col = "black", fill="lightyellow")+
+    labs(title = "Distribution of Automated Readibility Index(ARI)", x = "ARI Score", y = "Frequency")
+
+summary(glutenBooks$GradeLevel)
+```
+
+
+I removed the outlier at `r tooBig` because a score that high is improbable and likely due to an error within the calculation. The standard deviation of ARI Score is `r sd(glutenBooks$GradeLevel)` and the range is 35.4.  The median is 11.1 and the mean is 12.06. The 1st quartile is 9.1 and the 3rd quartile is 14.1. 
+
+
+------------------------------------------------------------------------
+
+
+## GradeLevel vs. AuthorDeathYear, AvgLettersPerWord, and AvgSentenceLength
+
+
+```{r, echo=FALSE}
+glutenBooks%>%
+    ggplot(aes(x = GradeLevel, y = AuthorDeathYear))+
+    geom_point()+
+    labs(title = "Distribution between ARI Score and Year of Author's Death", x = "ARI Score", y = "Year of Author's Death")+
+    geom_smooth(method = lm, formula = 'y ~ x')
+```
+
+
+The correlation coefficient between ARI Score and Year of Author's Death is `r round(cor(glutenBooks$GradeLevel, glutenBooks$AuthorDeathYear), 2)`, indicating that there is likely no relationship between these variables.
+
+
+```{r, echo=FALSE}
+glutenBooks%>%
+    ggplot(aes(x = GradeLevel, y = AvgLettersPerWord))+
+    geom_point()+
+    labs(title = "Distribution between ARI Score and Average Letters Per Word", x = "ARI Score", y = "Average Letters Per Word")+
+    geom_smooth(method = lm, formula = 'y ~ x')
+```
+
+
+The correlation coefficient between ARI Score and Average Letters Per Word is `r round(cor(glutenBooks$GradeLevel, glutenBooks$AvgLettersPerWord), 2)`, indicating that there is a weak, positive correlation. Since the strength of this relationship is minimal, it may not have substantial practical significance in our context.
+
+
+```{r, echo=FALSE}
+glutenBooks%>%
+    ggplot(aes(x = GradeLevel, y = AvgSentenceLength))+
+    geom_point()+
+    labs(title = "Distribution between ARI Score and Average Sentence Length", x = "ARI Score", y = "Average Sentence Length")+
+    geom_smooth(method = lm, formula = 'y ~ x')
+```
+
+
+The correlation coefficient between ARI Score and Average Letters Per Word is `r round(cor(glutenBooks$GradeLevel, glutenBooks$AvgSentenceLength), 2)`, indicating that there is a strong, positive correlation. Since the strength is quite strong, the relationship has high practical significance in our context. 
+
+
+------------------------------------------------------------------------
+
+
+## Conclusion
+
+
+There is close to no relationship between ARI Score and Year of Author's Death, some weak, positive relationship between ARI Score and Average Letters Per Word, and a strong, positive relationship between ARI Score and Average Sentence Length. 
+I find it very interesting that there is a weak relationship between ARI Score and Average Letters Per Word, as the formula for ARI uses Average Letters Per Word to calculate the score. The data on Project Gutenburg might've used a different variable to calculate ARI, or might've had some erros. 
+ARI also uses the length of sentence to calculate the end Score, which we can see through the strong relationship between the two. 
+I thought maybe there might've been relationship between how old a text is and how difficult it is to read, but it makes sense that there isn't any relationship, as older texts have been translated to fit the modern public. 
+
+
+[Project Gutenburg statistics](https://corgis-edu.github.io/corgis/csv/classics/)
+
+
+[ARI Score Information](https://readabilityformulas.com/the-automated-readability-index-ari/)
+
+
+
+------------------------------------------------------------------------
+
